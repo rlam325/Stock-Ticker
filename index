@@ -8,13 +8,17 @@
   <div id="results">Loading...</div>
 
   <script>
-    // Sample ASX tickers for demo; in real use, you'd fetch full ASX 200 list
+    // Sample ASX tickers – expand this list for full ASX 200 coverage
     const tickers = ['CBA.AX', 'BHP.AX', 'WBC.AX', 'NAB.AX'];
 
     async function fetchStockData(symbol) {
-      const url = `https://query1.finance.yahoo.com/v8/finance/chart/${symbol}?interval=1d&range=3mo`;
-      const res = await fetch(url);
-      const data = await res.json();
+      const proxyUrl = `https://api.allorigins.win/get?url=${encodeURIComponent(
+        'https://query1.finance.yahoo.com/v8/finance/chart/' + symbol + '?interval=1d&range=3mo'
+      )}`;
+      
+      const res = await fetch(proxyUrl);
+      const raw = await res.json();
+      const data = JSON.parse(raw.contents);
       return data;
     }
 
@@ -26,7 +30,7 @@
     }
 
     function calculateMomentum(prices) {
-      return prices[prices.length - 1] - prices[prices.length - 10]; // 10-day ROC
+      return prices[prices.length - 1] - prices[prices.length - 10]; // 10-day rate of change
     }
 
     async function screenStocks() {
@@ -55,7 +59,7 @@
       }
 
       const output = results.map(r =>
-        `<li>${r.symbol}: $${r.current.toFixed(2)}, SMA25: $${r.sma25.toFixed(2)}, Momentum: ${r.momentum.toFixed(2)}</li>`
+        `<li><strong>${r.symbol}</strong>: $${r.current.toFixed(2)} | SMA25: $${r.sma25.toFixed(2)} | Momentum: ${r.momentum.toFixed(2)}</li>`
       ).join('');
 
       document.getElementById('results').innerHTML =
